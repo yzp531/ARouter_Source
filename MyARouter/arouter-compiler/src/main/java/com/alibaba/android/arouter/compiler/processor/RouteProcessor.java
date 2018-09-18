@@ -126,7 +126,9 @@ public class RouteProcessor extends AbstractProcessor {
             moduleName = options.get(KEY_MODULE_NAME);
             generateDoc = VALUE_ENABLE.equals(options.get(KEY_GENERATE_DOC_NAME));
         }
-
+        /**
+         * 获取 moudlename 用于按组件生成类
+         */
         if (StringUtils.isNotEmpty(moduleName)) {
             moduleName = moduleName.replaceAll("[^0-9a-zA-Z_]+", "");
 
@@ -140,7 +142,9 @@ public class RouteProcessor extends AbstractProcessor {
                     "}\n");
             throw new RuntimeException("ARouter::Compiler >>> No module name, for more information, look at gradle log.");
         }
-
+        /**
+         * 判断是否要生成文档
+         */
         if (generateDoc) {
             try {
                 docWriter = mFiler.createResource(
@@ -200,32 +204,21 @@ public class RouteProcessor extends AbstractProcessor {
             ClassName routeMetaCn = ClassName.get(RouteMeta.class);
             ClassName routeTypeCn = ClassName.get(RouteType.class);
 
-            /*
-               Build input type, format as :
+            /**
+             Build input type, format as :
 
-               ```Map<String, Class<? extends IRouteGroup>>```
+             ```Map<String, Class<? extends IRouteGroup>>```
+             创建参数类型 Map<String, Class<? extends IRouteGroup>>
              */
-            ParameterizedTypeName inputMapTypeOfRoot = ParameterizedTypeName.get(
-                    ClassName.get(Map.class),
-                    ClassName.get(String.class),
-                    ParameterizedTypeName.get(
-                            ClassName.get(Class.class),
-                            WildcardTypeName.subtypeOf(ClassName.get(type_IRouteGroup))
-                    )
+            ParameterizedTypeName inputMapTypeOfRoot = ParameterizedTypeName.get(ClassName.get(Map.class), ClassName.get(String.class),
+                    ParameterizedTypeName.get(ClassName.get(Class.class), WildcardTypeName.subtypeOf(ClassName.get(type_IRouteGroup)))
             );
 
-            /*
-
-              ```Map<String, RouteMeta>```
-              参数实例化
-               Map<String,RouteMeta>
+            /**
+             *创建参数类型 Map<String, RouteMeta>
              */
 
-            ParameterizedTypeName inputMapTypeOfGroup = ParameterizedTypeName.get(
-                    ClassName.get(Map.class),
-                    ClassName.get(String.class),
-                    ClassName.get(RouteMeta.class)
-            );
+            ParameterizedTypeName inputMapTypeOfGroup = ParameterizedTypeName.get(ClassName.get(Map.class), ClassName.get(String.class), ClassName.get(RouteMeta.class));
 
             /*
               Build input param name.
@@ -234,7 +227,8 @@ public class RouteProcessor extends AbstractProcessor {
 
             ParameterSpec rootParamSpec = ParameterSpec.builder(inputMapTypeOfRoot, "routes").build();
             ParameterSpec groupParamSpec = ParameterSpec.builder(inputMapTypeOfGroup, "atlas").build();
-            ParameterSpec providerParamSpec = ParameterSpec.builder(inputMapTypeOfGroup, "providers").build();  // Ps. its param type same as groupParamSpec!
+            // Ps. its param type same as groupParamSpec!
+            ParameterSpec providerParamSpec = ParameterSpec.builder(inputMapTypeOfGroup, "providers").build();
 
             /**
              *  Build method : 'loadInto'
@@ -341,14 +335,12 @@ public class RouteProcessor extends AbstractProcessor {
                         // Need cache provider's super class
                         case PROVIDER:
                             List<? extends TypeMirror> interfaces = ((TypeElement) routeMeta.getRawType()).getInterfaces();
-                            /**
-                             *  生成方法内代码, 例如下面
-                             *  providers.put("com.alibaba.android.arouter.demo.testservice.HelloService", RouteMeta.build(RouteType.PROVIDER, HelloServiceImpl.class, "/service/hello", "service", null, -1, -2147483648));
-                             */
+
+                            //providers.put("com.alibaba.android.arouter.demo.testservice.HelloService", RouteMeta.build(RouteType.PROVIDER, HelloServiceImpl.class, "/service/hello", "service", null, -1, -2147483648));
                             for (TypeMirror tm : interfaces) {
                                 routeDoc.addPrototype(tm.toString());
-
-                                if (types.isSameType(tm, iProvider)) {   // Its implements iProvider interface himself.
+                                // Its implements iProvider interface himself.
+                                if (types.isSameType(tm, iProvider)) {
                                     // This interface extend the IProvider, so it can be used for mark provider
                                     loadIntoMethodOfProviderBuilder.addStatement(
                                             "providers.put($S, $T.build($T." + routeMeta.getType() + ", $T.class, $S, $S, null, " + routeMeta.getPriority() + ", " + routeMeta.getExtra() + "))",
