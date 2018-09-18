@@ -220,10 +220,11 @@ public class RouteProcessor extends AbstractProcessor {
 
             ParameterizedTypeName inputMapTypeOfGroup = ParameterizedTypeName.get(ClassName.get(Map.class), ClassName.get(String.class), ClassName.get(RouteMeta.class));
 
-            /*
-              Build input param name.
-            * 创建方法参数 routes, atlas, providers
-            */
+            /**
+             *
+             * Build input param name.
+             * 创建方法参数 routes, atlas, providers
+             */
 
             ParameterSpec rootParamSpec = ParameterSpec.builder(inputMapTypeOfRoot, "routes").build();
             ParameterSpec groupParamSpec = ParameterSpec.builder(inputMapTypeOfGroup, "atlas").build();
@@ -233,6 +234,8 @@ public class RouteProcessor extends AbstractProcessor {
             /**
              *  Build method : 'loadInto'
              * 声明 public void loadInto(Map<String, Class<? extends IRouteGroup>> routes)
+             * routes.put("m2", ARouter$$Group$$xx.class)
+             * routes.put("module", ARouter$$Group$$xxx.class)
              */
             MethodSpec.Builder loadIntoMethodOfRootBuilder = MethodSpec.methodBuilder(METHOD_LOAD_INTO)
                     .addAnnotation(Override.class)
@@ -269,6 +272,7 @@ public class RouteProcessor extends AbstractProcessor {
                         }
                     }
                     routeMeta = new RouteMeta(route, element, RouteType.ACTIVITY, paramsType);
+                    logger.info(">>> Found Acitivity  route: "+moduleName+"----" + route.toString() + " <<<");
                     routeMeta.setInjectConfig(injectConfig);
                 }
                 /**
@@ -284,13 +288,16 @@ public class RouteProcessor extends AbstractProcessor {
                 else if (types.isSubtype(tm, type_Service)) {
                     logger.info(">>> Found service route: " + tm.toString() + " <<<");
                     routeMeta = new RouteMeta(route, element, RouteType.parse(SERVICE), null);
-                } else if (types.isSubtype(tm, fragmentTm) || types.isSubtype(tm, fragmentTmV4)) {
+                }
+                /**
+                 * 处理 Fragment
+                 */
+                else if (types.isSubtype(tm, fragmentTm) || types.isSubtype(tm, fragmentTmV4)) {
                     logger.info(">>> Found fragment route: " + tm.toString() + " <<<");
                     routeMeta = new RouteMeta(route, element, RouteType.parse(FRAGMENT), null);
                 } else {
                     throw new RuntimeException("ARouter::Compiler >>> Found unsupported class type, type = [" + types.toString() + "].");
                 }
-
                 categories(routeMeta);
             }
             /**
