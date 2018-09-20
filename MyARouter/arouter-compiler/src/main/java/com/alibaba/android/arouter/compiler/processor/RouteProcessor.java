@@ -113,12 +113,16 @@ public class RouteProcessor extends AbstractProcessor {
     @Override
     public synchronized void init(ProcessingEnvironment processingEnv) {
         super.init(processingEnv);
-        mFiler = processingEnv.getFiler();                  // Generate class.
-        types = processingEnv.getTypeUtils();            // Get type utils.
-        elements = processingEnv.getElementUtils();      // Get class meta.
+        // Generate class.
+        mFiler = processingEnv.getFiler();
+        // Get type utils.
+        types = processingEnv.getTypeUtils();
+        // Get class meta.
+        elements = processingEnv.getElementUtils();
 
         typeUtils = new TypeUtils(types, elements);
-        logger = new Logger(processingEnv.getMessager());   // Package the log utils.
+        // Package the log utils.
+        logger = new Logger(processingEnv.getMessager());
 
         // Attempt to get user configuration [moduleName]
         Map<String, String> options = processingEnv.getOptions();
@@ -272,7 +276,7 @@ public class RouteProcessor extends AbstractProcessor {
                         }
                     }
                     routeMeta = new RouteMeta(route, element, RouteType.ACTIVITY, paramsType);
-                    logger.info(">>> Found Acitivity  route: "+moduleName+"----" + route.toString() + " <<<");
+                    logger.info(">>> Found Acitivity  route: " + moduleName + "----" + route.toString() + " <<<");
                     routeMeta.setInjectConfig(injectConfig);
                 }
                 /**
@@ -361,7 +365,8 @@ public class RouteProcessor extends AbstractProcessor {
                                     // This interface extend the IProvider, so it can be used for mark provider
                                     loadIntoMethodOfProviderBuilder.addStatement(
                                             "providers.put($S, $T.build($T." + routeMeta.getType() + ", $T.class, $S, $S, null, " + routeMeta.getPriority() + ", " + routeMeta.getExtra() + "))",
-                                            tm.toString(),    // So stupid, will duplicate only save class name.
+                                            // So stupid, will duplicate only save class name.
+                                            tm.toString(),
                                             routeMetaCn,
                                             routeTypeCn,
                                             className,
@@ -402,8 +407,9 @@ public class RouteProcessor extends AbstractProcessor {
                     String mapBody = mapBodyBuilder.toString();
                     /**
                      *   生成方法内代码
-                     *  atlas.put("/test/activity2", RouteMeta.build(RouteType.ACTIVITY, Test2Activity.class, "/test/activity2", "test", new java.util.HashMap<String, Integer>(){{put("key1", 8); }}, -1, -2147483648));
+                     *
                      */
+                    //atlas.put("/test/activity2", RouteMeta.build(RouteType.ACTIVITY, Test2Activity.class, "/test/activity2", "test", new java.util.HashMap<String, Integer>(){{put("key1", 8); }}, -1, -2147483648));
                     loadIntoMethodOfGroupBuilder.addStatement(
                             "atlas.put($S, $T.build($T." + routeMeta.getType() + ", $T.class, $S, $S, " + (StringUtils.isEmpty(mapBody) ? null : ("new java.util.HashMap<String, Integer>(){{" + mapBodyBuilder.toString() + "}}")) + ", " + routeMeta.getPriority() + ", " + routeMeta.getExtra() + "))",
                             routeMeta.getPath(),
@@ -524,7 +530,7 @@ public class RouteProcessor extends AbstractProcessor {
     }
 
     /**
-     * Verify the route meta
+     * Verify the route meta  检验 Route 格式
      *
      * @param meta raw meta
      */

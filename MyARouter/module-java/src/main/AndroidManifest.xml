@@ -7,8 +7,9 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application>
-        <activity android:name=".TestModuleActivity"></activity>
-        <activity android:name=".TestModule2Activity"></activity>
+        <activity android:name=".TestModuleActivity" />
+        <activity android:name=".TestModule2Activity" />
+        <activity android:name=".TestMoudle3Activity"></activity>
     </application>
 
 </manifest>
